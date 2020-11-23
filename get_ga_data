@@ -1,0 +1,124 @@
+library(googleAuthR)
+
+options(googleAuthR.scopes.selected = c(
+  "https://www.googleapis.com/auth/bigquery",
+  "https://www.googleapis.com/auth/analytics")
+)
+
+library(RGoogleAnalytics)
+library(googleAnalyticsR)
+
+###calling function via token
+gar_auth_service("conn.json")
+
+get_ga_data <- function(start_date, end_date, metrics, dimensions, file_name, columns) {
+    print("GA Analytics sessions/transactions data import started..")
+
+    brand_market_ga_ids <- vector(mode = "list", length = 17)
+    names(brand_market_ga_ids) <- c("hm_uae", "hm_egy", "hm_ksa", "mc_uae", "mc_ksa", "bbw_uae", "bbw_ksa",
+                                    "vs_uae", "vs_ksa", "wes_uae", "pb_uae", "pb_ksa", "aeo_uae", "aeo_ksa",
+                                    "mc_kwt", "fl_uae", "hm_kwt")
+    brand_market_ga_ids[[1]] <- "ga:164862695"
+    brand_market_ga_ids[[2]] <- "ga:205050928"
+    brand_market_ga_ids[[3]] <- "ga:164870155"
+    brand_market_ga_ids[[4]] <- "ga:114955062"
+    brand_market_ga_ids[[5]] <- "ga:114976409"
+    brand_market_ga_ids[[6]] <- "ga:176054247"
+    brand_market_ga_ids[[7]] <- "ga:176008893"
+    brand_market_ga_ids[[8]] <- "ga:176079653"
+    brand_market_ga_ids[[9]] <- "ga:176080378"
+    brand_market_ga_ids[[10]] <- "ga:203456336"
+    brand_market_ga_ids[[11]] <- "ga:188370045"
+    brand_market_ga_ids[[12]] <- "ga:197344933"
+    brand_market_ga_ids[[13]] <- "ga:214221282"
+    brand_market_ga_ids[[14]] <- "ga:214218311"
+    brand_market_ga_ids[[15]] <- "ga:114973213"
+    brand_market_ga_ids[[16]] <- "ga:197083733"
+    brand_market_ga_ids[[17]] <- "ga:158327044"
+
+    brand_market_data <- list()
+
+    for (i in seq_along(brand_market_ga_ids)) {
+        brand_country <- names(brand_market_ga_ids)[[i]]
+        sprintf("Getting ga_data for brand_country: %s", brand_country)
+        ga_id <- brand_market_ga_ids[[i]]
+        brand_market_ga_data <- google_analytics(ga_id, date_range = c(start_date, end_date),
+                                                 metrics = metrics,
+                                                 dimensions = dimensions)
+
+        brand_market_ga_data$brand_country <- brand_country
+        brand_market_data[[i]] <- brand_market_ga_data
+    }
+
+    brand_market_ga_data_all <- do.call(rbind, brand_market_data)
+
+    if (!is.na(columns)){
+        colnames(brand_market_ga_data_all) <- columns
+    }
+    else{
+        print("No columns mentioned, setting default ones")
+    }
+    write.csv(brand_market_ga_data_all, file = file_name)
+
+    print("GA Analytics sessions/transactions data import finished..")
+}
+
+
+
+####
+### Create a new view adding a fliter.
+###
+
+
+get_ga_data_filter <- function(start_date, end_date, metrics, dimensions, filter, file_name, columns) {
+  print("GA Analytics sessions/transactions data import started..")
+  
+  brand_market_ga_ids <- vector(mode = "list", length = 17)
+  names(brand_market_ga_ids) <- c("hm_uae", "hm_egy", "hm_ksa", "mc_uae", "mc_ksa", "bbw_uae", "bbw_ksa",
+                                  "vs_uae", "vs_ksa", "wes_uae", "pb_uae", "pb_ksa", "aeo_uae", "aeo_ksa",
+                                  "mc_kwt", "fl_uae", "hm_kwt")
+  
+  brand_market_ga_ids[[1]] <- "ga:164862695"
+  brand_market_ga_ids[[2]] <- "ga:205050928"
+  brand_market_ga_ids[[3]] <- "ga:164870155"
+  brand_market_ga_ids[[4]] <- "ga:114955062"
+  brand_market_ga_ids[[5]] <- "ga:114976409"
+  brand_market_ga_ids[[6]] <- "ga:176054247"
+  brand_market_ga_ids[[7]] <- "ga:176008893"
+  brand_market_ga_ids[[8]] <- "ga:176079653"
+  brand_market_ga_ids[[9]] <- "ga:176080378"
+  brand_market_ga_ids[[10]] <- "ga:203456336"
+  brand_market_ga_ids[[11]] <- "ga:188370045"
+  brand_market_ga_ids[[12]] <- "ga:197344933"
+  brand_market_ga_ids[[13]] <- "ga:214221282"
+  brand_market_ga_ids[[14]] <- "ga:214218311"
+  brand_market_ga_ids[[15]] <- "ga:114973213"
+  brand_market_ga_ids[[16]] <- "ga:197083733"
+  brand_market_ga_ids[[17]] <- "ga:158327044"
+  
+  brand_market_data <- list()
+  
+  for (i in seq_along(brand_market_ga_ids)) {
+    brand_country <- names(brand_market_ga_ids)[[i]]
+    sprintf("Getting ga_data for brand_country: %s", brand_country)
+    ga_id <- brand_market_ga_ids[[i]]
+    brand_market_ga_data <- google_analytics(ga_id, date_range = c(start_date, end_date),
+                                             metrics = metrics,
+                                             dimensions = dimensions)
+    
+    brand_market_ga_data$brand_country <- brand_country
+    brand_market_data[[i]] <- brand_market_ga_data
+  }
+  
+  brand_market_ga_data_all <- do.call(rbind, brand_market_data)
+  
+  if (!is.na(columns)){
+    colnames(brand_market_ga_data_all) <- columns
+  }
+  else{
+    print("No columns mentioned, setting default ones")
+  }
+  write.csv(brand_market_ga_data_all, file = file_name)
+  
+  print("GA Analytics sessions/transactions data import finished..")
+}
