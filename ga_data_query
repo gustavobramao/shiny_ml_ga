@@ -1,0 +1,77 @@
+library(config)
+
+if (config::is_active("production")) {
+    print("Environment is production")
+    setwd('/var/www/shiny_app')
+}
+if (config::is_active("default")) {
+    print("Environment is default")
+}
+
+source("data_helpers/ga_data.R")
+
+#### Get GA Data Sessions and transactions comparaison
+get_ga_sessions_transaction <-function(){
+    print("Fetching GA Sessions Transactions data..")
+
+    start_date <- Sys.Date() - 300
+    end_date <- Sys.Date() - 1
+    metrics <- c("sessions", "transactions", "transactionsPerSession", "pageviews")
+    dimensions <- c("date", "dayOfWeek")
+    get_ga_data(start_date = start_date, end_date = end_date, metrics = metrics,
+                dimensions = dimensions, file_name = "ga_st.csv", columns = NA)
+    print("Fetching GA Sessions Transactions data is done..")
+}
+
+
+#### Get Data for ML Models
+get_ml_models_data <-function(){
+    print("Fetching ML Models data..")
+    start_date <- Sys.Date() - 90
+    end_date <- Sys.Date() - 1
+    metrics <- c("sessions", "transactions", "transactionsPerSession", "pageviews", "bounces", "avgSessionDuration",
+                 "avgPageLoadTime", "buyToDetailRate")
+    dimensions <- c("date")
+    columns <- c("date", "sessions", "transactions", "cvr", "pageviews", "bounces", "avgSessionDuration",
+                 "avgPageLoadTime", "buyToDetailRate", "brand_country")
+
+    get_ga_data(start_date = start_date, end_date = end_date, metrics = metrics,
+                dimensions = dimensions, file_name = "ml_ga_data.csv", columns = columns)
+
+    print("Fetching ML Models data is done..")
+}
+
+
+#### Get Filter for ML Models.
+get_filter <-function(){
+    print("Fetching ML Models data..")
+    start_date <- Sys.Date() - 90
+    end_date <- Sys.Date() - 1
+    metrics <- "pageviews"
+    dimensions <- c("date","eventCategory")
+    filter <- "eventCategory=~update"
+    columns <- c("date", "event", "pageviews")
+    
+    get_ga_data(start_date = start_date, end_date = end_date, metrics = metrics,
+                dimensions = dimensions, filter = filter, file_name = "filter_ga_data.csv", columns = columns)
+    
+    print("Fetching ML Models data is done..")
+}
+
+#### Get Weekly data for all Brands
+get_weekly_brand_data <-function(){
+    print("Fetching Weekly Brands data..")
+    start_date <- Sys.Date() - 600
+    end_date <- Sys.Date() - 1
+    metrics <- c("sessions", "transactions", "transactionsPerSession", "pageviews", "bounces", "avgSessionDuration",
+                 "avgPageLoadTime", "buyToDetailRate")
+    dimensions <- "date"
+    columns <- c("date", "sessions", "transactions", "cvr", "pageviews", "bounces", "avgSessionDuration",
+                 "avgPageLoadTime", "buyToDetailRate", "brand_country")
+
+    get_ga_data(start_date = start_date, end_date = end_date, metrics = metrics,
+                dimensions = dimensions, file_name = "we_ga_data.csv", columns = columns)
+    print("Fetching Weekly Brands data is done..")
+}
+
+
